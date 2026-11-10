@@ -1,0 +1,27 @@
+# 1. Запретить всё по умолчанию (Default Deny Whitelist)
+/*
+
+# 2. Белый список проектных файлов и каталогов
+!.gitignore
+!AGENTS.md
+!README*.md
+!CHANGELOG.md
+!ARCHITECTURE.md
+!build.ps1
+!package.json
+!index.html
+
+!css/
+!css/**
+
+!js/
+!js/**
+
+!content/
+!content/**
+
+!test/
+!test/**
+
+!assets/
+!assets/**

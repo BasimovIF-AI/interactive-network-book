@@ -1,0 +1,481 @@
+/* ==============================================================================
+   interactive-lab.css — Стили интерактивных пультов, тумблеров и симуляторов
+   ============================================================================== */
+
+.lab-box {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  margin: 32px 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.lab-box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+}
+
+.lab-header {
+  padding: 16px 24px;
+  background: var(--bg-surface-card);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.lab-title-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.lab-icon {
+  font-size: 1.3rem;
+}
+
+.lab-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.lab-badge {
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(74, 222, 128, 0.15);
+  color: var(--accent-green);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.lab-body {
+  padding: 24px;
+}
+
+/* ==============================================================================
+   1. BitSwitchWidget — 8-битный интерактивный пульт
+   ============================================================================== */
+
+.bits-row {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 20px 0;
+}
+
+.bit-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.bit-weight {
+  font-size: 0.8rem;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.bit-btn {
+  width: 54px;
+  height: 70px;
+  background: var(--bg-surface-card);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 1.8rem;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 0 var(--border-color);
+}
+
+.bit-btn:hover {
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+}
+
+.bit-btn.active {
+  background: linear-gradient(180deg, var(--accent-cyan), #0284c7);
+  border-color: #38bdf8;
+  color: #ffffff;
+  box-shadow: 0 4px 0 #0369a1, 0 0 16px rgba(56, 189, 248, 0.5);
+  transform: translateY(-2px);
+}
+
+.bit-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #0369a1;
+}
+
+.bit-results {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+  margin-top: 24px;
+  padding: 16px;
+  background: var(--bg-surface-card);
+  border-radius: var(--radius-md);
+}
+
+.res-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.res-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.res-val {
+  font-size: 1.4rem;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  color: var(--accent-cyan);
+}
+
+.color-preview-box {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--border-color);
+  margin-top: 4px;
+  transition: background-color 0.2s;
+}
+
+/* ==============================================================================
+   2. TopologyLab — Краш-тест сетевых топологий
+   ============================================================================== */
+
+.topo-controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.topo-btn {
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.topo-btn.active {
+  background: var(--accent-cyan);
+  color: #fff;
+  border-color: var(--accent-cyan);
+}
+
+.topo-canvas-area {
+  position: relative;
+  width: 100%;
+  height: 280px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.topo-node {
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--bg-surface-card);
+  border: 2px solid var(--accent-cyan);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--text-main);
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
+}
+
+.topo-node.isolated {
+  border-color: var(--accent-red);
+  color: var(--accent-red);
+  box-shadow: 0 0 10px rgba(248, 113, 113, 0.3);
+}
+
+.topo-wire {
+  stroke: var(--accent-cyan);
+  stroke-width: 3;
+  cursor: pointer;
+  transition: stroke 0.2s;
+}
+
+.topo-wire:hover {
+  stroke: var(--accent-amber);
+  stroke-width: 5;
+}
+
+.topo-wire.cut {
+  stroke: var(--accent-red);
+  stroke-dasharray: 6 6;
+  opacity: 0.6;
+}
+
+/* ==============================================================================
+   3. EncapsulationBox — Матрёшка PDU (Упаковка слоёв)
+   ============================================================================== */
+
+.encap-flow {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.encap-layer {
+  border: 2px dashed var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  background: var(--bg-surface-card);
+  transition: all 0.3s;
+}
+
+.encap-layer.packed {
+  border-style: solid;
+  border-color: var(--accent-cyan);
+  background: rgba(56, 189, 248, 0.05);
+}
+
+.layer-header-tag {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.encap-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+/* ==============================================================================
+   4. SwitchCamLab — Интерактивный коммутатор и CAM-таблица
+   ============================================================================== */
+
+.switch-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .switch-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.cam-table-wrapper {
+  background: var(--bg-surface-card);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  padding: 14px;
+}
+
+.cam-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+
+.cam-table th, .cam-table td {
+  padding: 8px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.cam-table th {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.cam-table tr.new-entry {
+  animation: highlightRow 1.2s ease;
+}
+
+@keyframes highlightRow {
+  0% { background: rgba(74, 222, 128, 0.4); }
+  100% { background: transparent; }
+}
+
+/* ==============================================================================
+   5. SubnetCutter — Слайдер нарезки подсетей (FLSM)
+   ============================================================================== */
+
+.subnet-slider-ctrl {
+  margin: 20px 0;
+}
+
+.subnet-slider-ctrl input[type="range"] {
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--border-color);
+  outline: none;
+}
+
+.subnet-blocks-container {
+  display: flex;
+  gap: 4px;
+  height: 50px;
+  margin-top: 16px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--bg-surface-card);
+  padding: 4px;
+}
+
+.subnet-block {
+  flex: 1;
+  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: #fff;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.subnet-block:hover {
+  transform: scaleY(1.1);
+  filter: brightness(1.2);
+}
+
+/* ==============================================================================
+   6. Interactive Quiz Box
+   ============================================================================== */
+
+.quiz-card {
+  background: var(--bg-surface-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  margin: 32px 0;
+}
+
+.quiz-question {
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin-bottom: 16px;
+}
+
+.quiz-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.quiz-opt-btn {
+  padding: 12px 18px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  text-align: left;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.quiz-opt-btn:hover {
+  border-color: var(--accent-cyan);
+}
+
+.quiz-opt-btn.correct {
+  background: rgba(74, 222, 128, 0.2);
+  border-color: var(--accent-green);
+  color: var(--accent-green);
+  font-weight: 700;
+}
+
+.quiz-opt-btn.incorrect {
+  background: rgba(248, 113, 113, 0.2);
+  border-color: var(--accent-red);
+  color: var(--accent-red);
+}
+
+.quiz-feedback {
+  margin-top: 14px;
+  font-size: 0.92rem;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  display: none;
+}
+
+
+/* ==============================================================================
+   7. Task Box (Миссии и практические задания)
+   ============================================================================== */
+
+.task-box {
+  background: var(--bg-surface-card);
+  border: 1px solid var(--accent-cyan);
+  border-left: 4px solid var(--accent-cyan);
+  border-radius: var(--radius-md);
+  padding: 18px 22px;
+  margin: 28px 0;
+}
+
+.task-box h4 {
+  font-size: 1rem;
+  color: var(--accent-cyan);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cli-box {
+  background: #090d16;
+  color: #38bdf8;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  padding: 14px 18px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  overflow-x: auto;
+  margin: 16px 0;
+  line-height: 1.5;
+}

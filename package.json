@@ -1,0 +1,17 @@
+{
+  "name": "network-foundations-book",
+  "version": "0.3.0",
+  "description": "Интерактивная книга основ сетей для юных инженеров 13 лет",
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  },
+  "keywords": [
+    "networking",
+    "interactive-book",
+    "education",
+    "computer-networks"
+  ],
+  "author": "Antigravity Senior Team",
+  "license": "MIT"
+}
