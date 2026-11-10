@@ -25,14 +25,19 @@ network-foundations/
 │   │   ├── Device.js          # Абстрактные узлы: Host, Switch, Router
 │   │   └── NetworkBus.js      # Событийно-ориентированная шина передачи пакетов
 │   ├── widgets/               # ИНТЕРАКТИВНЫЕ ВИДЖЕТЫ
+│   │   ├── MorseTelegraphLab.js# Виртуальный телеграф Морзе и живой осциллограф
 │   │   ├── BitSwitchWidget.js # Интерактивный 8-битный тумблер
+│   │   ├── CableInterferenceLab.js# Симулятор сред передачи (медь, оптоволокно, Wi-Fi)
 │   │   ├── TopologyLab.js     # Лаборатория топологий проводов
-│   │   ├── EncapsulationBox.js# Пошаговая матрешка инкапсуляции PDU
+│   │   ├── OsiLayersExplorer.js# Интерактивный рентген 7 уровней OSI vs 4 слоя TCP/IP
+│   │   ├── OsiElevatorGame.js # Аркадный сортировщик сущностей по этажам OSI
+│   │   ├── EncapsulationBox.js# Матрёшка PDU 2.0 (заголовки, CRC32, бит-флип помехи)
 │   │   ├── SwitchCamLab.js    # Живое обучение CAM-таблицы свича
 │   │   ├── SubnetCutter.js    # Нарезка подсетей (FLSM/VLSM)
 │   │   ├── RouterCompass.js   # Маршрутизатор и поиск по таблице (LPM)
 │   │   ├── OspfGraphVisual.js # Граф Дейкстры и динамическая маршрутизация
 │   │   ├── TcpHandshakeSim.js # Рукопожатие TCP и переповторы при потерях
+│   │   ├── NetworkServicesLab.js# Симулятор служб DNS, DHCP, ARP и NAT
 │   │   └── PacketTracerLite.js# Финальная интерактивная песочница
 │   ├── audio/
 │   │   └── SoundManager.js    # Синтезатор звуков на Web Audio API

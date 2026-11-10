@@ -9,6 +9,8 @@ import { MorseTelegraphLab } from './widgets/MorseTelegraphLab.js';
 import { BitSwitchWidget } from './widgets/BitSwitchWidget.js';
 import { CableInterferenceLab } from './widgets/CableInterferenceLab.js';
 import { TopologyLab } from './widgets/TopologyLab.js';
+import { OsiLayersExplorer } from './widgets/OsiLayersExplorer.js';
+import { OsiElevatorGame } from './widgets/OsiElevatorGame.js';
 import { EncapsulationBox } from './widgets/EncapsulationBox.js';
 import { SwitchCamLab } from './widgets/SwitchCamLab.js';
 import { SubnetCutter } from './widgets/SubnetCutter.js';
@@ -197,6 +199,12 @@ export class BookApp {
         break;
       case 'topology-lab':
         this.currentWidget = new TopologyLab(widgetMount);
+        break;
+      case 'osi-explorer':
+        this.currentWidget = new OsiLayersExplorer(widgetMount);
+        break;
+      case 'osi-elevator':
+        this.currentWidget = new OsiElevatorGame(widgetMount);
         break;
       case 'encapsulation':
         this.currentWidget = new EncapsulationBox(widgetMount);
