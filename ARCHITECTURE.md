@@ -26,7 +26,9 @@ network-foundations/
 │   │   └── NetworkBus.js      # Событийно-ориентированная шина передачи пакетов
 │   ├── widgets/               # ИНТЕРАКТИВНЫЕ ВИДЖЕТЫ
 │   │   ├── MorseTelegraphLab.js# Виртуальный телеграф Морзе и живой осциллограф
-│   │   ├── BitSwitchWidget.js # Интерактивный 8-битный тумблер
+│   │   ├── BitSwitchWidget.js # 8-битный тумблер 2.0 с живой формулой и квестом
+│   │   ├── HexNibblesLab.js   # Сплиттер нибблов (HEX), миксер #RRGGBB и блиц-тренажер
+│   │   ├── AsciiTextEncoderLab.js# Шифратор ASCII/UTF-8, магия 5-го бита и симулятор Win-1251
 │   │   ├── CableInterferenceLab.js# Симулятор сред передачи (медь, оптоволокно, Wi-Fi)
 │   │   ├── TopologyLab.js     # Лаборатория топологий проводов
 │   │   ├── OsiLayersExplorer.js# Интерактивный рентген 7 уровней OSI vs 4 слоя TCP/IP

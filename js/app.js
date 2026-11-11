@@ -7,6 +7,8 @@ import { CHAPTERS } from './content/chaptersData.js';
 import { sounds } from './audio/SoundManager.js';
 import { MorseTelegraphLab } from './widgets/MorseTelegraphLab.js';
 import { BitSwitchWidget } from './widgets/BitSwitchWidget.js';
+import { HexNibblesLab } from './widgets/HexNibblesLab.js';
+import { AsciiTextEncoderLab } from './widgets/AsciiTextEncoderLab.js';
 import { CableInterferenceLab } from './widgets/CableInterferenceLab.js';
 import { TopologyLab } from './widgets/TopologyLab.js';
 import { OsiLayersExplorer } from './widgets/OsiLayersExplorer.js';
@@ -23,7 +25,9 @@ export class BookApp {
   constructor() {
     this.currentChapterIndex = 0;
     this.currentWidget = null;
-    this.completedChapters = new Set(JSON.parse(localStorage.getItem('completed_chapters') || '[]'));
+    const validIds = new Set(CHAPTERS.map(c => c.id));
+    const saved = JSON.parse(localStorage.getItem('completed_chapters') || '[]');
+    this.completedChapters = new Set(saved.filter(id => validIds.has(id)));
     this.init();
   }
 
@@ -193,6 +197,12 @@ export class BookApp {
         break;
       case 'bit-switch':
         this.currentWidget = new BitSwitchWidget(widgetMount);
+        break;
+      case 'hex-nibbles':
+        this.currentWidget = new HexNibblesLab(widgetMount);
+        break;
+      case 'ascii-encoder':
+        this.currentWidget = new AsciiTextEncoderLab(widgetMount);
         break;
       case 'cable-interference':
         this.currentWidget = new CableInterferenceLab(widgetMount);
