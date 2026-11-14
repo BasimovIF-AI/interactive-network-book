@@ -6,7 +6,7 @@
 export class SoundManager {
   constructor() {
     this.ctx = null;
-    this.isMuted = localStorage.getItem('sound_muted') === 'true';
+    this.isMuted = typeof localStorage !== 'undefined' ? localStorage.getItem('sound_muted') === 'true' : false;
     this.morseOsc = null;
     this.morseGain = null;
   }

@@ -69,7 +69,8 @@ export class BitSwitchWidget {
             </div>
             <div class="res-item">
               <span class="res-label">Символ (ASCII)</span>
-              <span class="res-val" id="res-ascii">-</span>
+              <span class="res-val" id="res-ascii" style="font-size: 1.15rem;">-</span>
+              <span class="res-desc" id="res-ascii-desc"></span>
             </div>
           </div>
 
@@ -240,14 +241,18 @@ export class BitSwitchWidget {
     this.container.querySelector('#res-dec').textContent = this.value;
     this.container.querySelector('#res-hex').textContent = `0x${BitMath.toHexString(this.value, 2)}`;
 
-    // ASCII
+    // ASCII с подробным описанием спецкодов
+    const asciiInfo = BitSwitchWidget.getAsciiInfo(this.value);
     const asciiElem = this.container.querySelector('#res-ascii');
-    if (this.value >= 33 && this.value <= 126) {
-      asciiElem.textContent = `'${String.fromCharCode(this.value)}'`;
-    } else if (this.value === 32) {
-      asciiElem.textContent = '[Пробел]';
-    } else {
-      asciiElem.textContent = '[Спецкод]';
+    const asciiDesc = this.container.querySelector('#res-ascii-desc');
+    if (asciiElem) {
+      asciiElem.textContent = asciiInfo.name;
+      asciiElem.style.color = asciiInfo.isControl
+        ? 'var(--accent-amber)'
+        : (asciiInfo.isExtended ? 'var(--accent-purple)' : 'var(--accent-cyan)');
+    }
+    if (asciiDesc) {
+      asciiDesc.textContent = asciiInfo.desc;
     }
 
     // Проверка квеста
@@ -262,5 +267,93 @@ export class BitSwitchWidget {
         </div>
       `;
     }
+  }
+
+  /**
+   * Возвращает подробную расшифровку ASCII-кода (спецкоды 0-31, печатные, 127 и 128-255).
+   * @param {number} code
+   * @returns {{ name: string, desc: string, isControl: boolean, isExtended: boolean }}
+   */
+  static getAsciiInfo(code) {
+    const CONTROL_CODES = {
+      0:  { name: 'NUL (0x00)', desc: 'Null — пустой байт, конец строки в C/C++ и памяти' },
+      1:  { name: 'SOH (0x01)', desc: 'Start of Heading — начало сетевого заголовка пакета' },
+      2:  { name: 'STX (0x02)', desc: 'Start of Text — начало полезного текста сообщения' },
+      3:  { name: 'ETX (0x03)', desc: 'End of Text — конец текста сообщения' },
+      4:  { name: 'EOT (0x04)', desc: 'End of Transmission — конец сеанса передачи связи' },
+      5:  { name: 'ENQ (0x05)', desc: 'Enquiry — запрос связи («Кто на связи?»)' },
+      6:  { name: 'ACK (0x06)', desc: 'Acknowledge — подтверждение («Пакет принят без ошибок!»)' },
+      7:  { name: 'BEL (0x07)', desc: 'Bell (Звонок) — звуковой сигнал / писк спикера терминала' },
+      8:  { name: 'BS (0x08)',  desc: 'Backspace — шаг назад / удаление символа слева' },
+      9:  { name: 'HT / TAB',   desc: 'Табуляция — отступ на 4 или 8 пробелов (клавиша Tab)' },
+      10: { name: 'LF / \\n',    desc: 'Line Feed — перевод строки на новую строчку вниз' },
+      11: { name: 'VT (0x0B)', desc: 'Vertical Tab — вертикальная табуляция (пропуск строк)' },
+      12: { name: 'FF (0x0C)', desc: 'Form Feed — прогон страницы на принтере / очистка терминала' },
+      13: { name: 'CR / \\r',    desc: 'Carriage Return — возврат каретки в самое начало строки' },
+      14: { name: 'SO (0x0E)', desc: 'Shift Out — переключение на альтернативный шрифт / цвет' },
+      15: { name: 'SI (0x0F)', desc: 'Shift In — возврат к стандартному шрифту' },
+      16: { name: 'DLE (0x10)', desc: 'Data Link Escape — экранирование управляющих команд' },
+      17: { name: 'DC1 / XON',  desc: 'Device Control 1 — возобновить приём потока данных' },
+      18: { name: 'DC2 (0x12)', desc: 'Device Control 2 — включить внешнее устройство' },
+      19: { name: 'DC3 / XOFF', desc: 'Device Control 3 — приостановить поток (пауза передачи)' },
+      20: { name: 'DC4 (0x14)', desc: 'Device Control 4 — выключить внешнее устройство' },
+      21: { name: 'NAK (0x15)', desc: 'Negative Ack — ошибка («Пакет повреждён, повтори!»)' },
+      22: { name: 'SYN (0x16)', desc: 'Synchronous Idle — сигнал синхронизации и ожидания' },
+      23: { name: 'ETB (0x17)', desc: 'End of Block — конец передаваемого блока данных' },
+      24: { name: 'CAN (0x18)', desc: 'Cancel — отмена / сброс начатой операции' },
+      25: { name: 'EM (0x19)',  desc: 'End of Medium — физический конец перфоленты / носителя' },
+      26: { name: 'SUB / ^Z',   desc: 'Substitute (Ctrl+Z) — замена испорченного знака / конец ввода' },
+      27: { name: 'ESC (0x1B)', desc: 'Escape — отмена / начало ANSI-кодов цвета в терминале' },
+      28: { name: 'FS (0x1C)',  desc: 'File Separator — разделитель файлов в потоке данных' },
+      29: { name: 'GS (0x1D)',  desc: 'Group Separator — разделитель групп записей' },
+      30: { name: 'RS (0x1E)',  desc: 'Record Separator — разделитель записей' },
+      31: { name: 'US (0x1F)',  desc: 'Unit Separator — разделитель элементарных полей данных' },
+      127: { name: 'DEL (0x7F)', desc: 'Delete — удаление символа (на перфоленте — пробиты все 7 бит)' }
+    };
+
+    if (CONTROL_CODES[code]) {
+      return {
+        name: CONTROL_CODES[code].name,
+        desc: CONTROL_CODES[code].desc,
+        isControl: true,
+        isExtended: false
+      };
+    }
+
+    if (code === 32) {
+      return {
+        name: '[Пробел] (0x20)',
+        desc: 'Печатный пробел (пустое место между словами)',
+        isControl: false,
+        isExtended: false
+      };
+    }
+
+    if (code >= 33 && code <= 126) {
+      const ch = String.fromCharCode(code);
+      let desc = 'Печатный знак препинания / символ';
+      if (code >= 48 && code <= 57) {
+        desc = 'Печатная цифра в тексте (не путать с числом!)';
+      } else if (code >= 65 && code <= 90) {
+        desc = 'Печатная заглавная латинская буква';
+      } else if (code >= 97 && code <= 122) {
+        desc = 'Печатная строчная латинская буква';
+      }
+      return {
+        name: `'${ch}' (код ${code})`,
+        desc,
+        isControl: false,
+        isExtended: false
+      };
+    }
+
+    // 128..255
+    const hex = BitMath.toHexString(code, 2);
+    return {
+      name: `Вне 7-бит ASCII (0x${hex})`,
+      desc: 'Старший бит = 1. В UTF-8 часть кириллицы/эмодзи, в Win-1251 — доп. символ',
+      isControl: false,
+      isExtended: true
+    };
   }
 }
