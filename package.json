@@ -1,6 +1,6 @@
 {
   "name": "network-foundations-book",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "description": "Интерактивная книга основ сетей для юных инженеров 13 лет",
   "type": "module",
   "scripts": {

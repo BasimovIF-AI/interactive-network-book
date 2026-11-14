@@ -41,6 +41,7 @@ export class AsciiTextEncoderLab {
               <button class="topo-btn" data-preset="Hi!">Hi! (ASCII)</button>
               <button class="topo-btn" data-preset="5 + 5">5 + 5 (Цифра vs число)</button>
               <button class="topo-btn" data-preset="Привет! 🚀">Привет! 🚀 (UTF-8)</button>
+              <button class="topo-btn btn-open-ascii-table-modal" data-cp="windows-1252" title="Открыть полную интерактивную таблицу на 256 символов">📖 Таблица 256 символов</button>
             </div>
           </div>
 

@@ -891,3 +891,182 @@
   font-size: 0.8rem;
   border-radius: var(--radius-sm);
 }
+
+
+/* ==============================================================================
+   9. AsciiTableModal (Модальное окно на 256 символов) и стабилизация высоты карточек
+   ============================================================================== */
+
+.res-item {
+  min-height: 98px;
+}
+
+.res-label {
+  white-space: nowrap;
+}
+
+.ascii-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: fadeIn 0.15s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.ascii-modal-box {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  width: 100%;
+  max-width: 900px;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.ascii-modal-header {
+  padding: 16px 20px;
+  background: var(--bg-surface-card);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ascii-modal-close-btn {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  transition: all 0.15s;
+}
+
+.ascii-modal-close-btn:hover {
+  background: rgba(248, 113, 113, 0.15);
+  color: var(--accent-red);
+}
+
+.ascii-modal-controls {
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.codepage-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.ascii-modal-search {
+  padding: 6px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface-card);
+  color: var(--text-main);
+  font-size: 0.85rem;
+  font-family: var(--font-sans);
+  min-width: 200px;
+}
+
+.ascii-modal-search:focus {
+  outline: none;
+  border-color: var(--accent-cyan);
+}
+
+.ascii-grid-scroll {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 16px 20px;
+}
+
+.ascii-matrix-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(46px, 1fr));
+  gap: 6px;
+}
+
+.ascii-cell {
+  background: var(--bg-surface-card);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 3px 2px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 52px;
+  cursor: pointer;
+  font-family: 'Consolas', var(--font-mono);
+  transition: all 0.12s;
+  user-select: none;
+}
+
+.ascii-cell:hover {
+  border-color: var(--accent-cyan);
+  transform: translateY(-1px);
+}
+
+.ascii-cell.selected {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 0 2px var(--accent-cyan);
+  background: rgba(56, 189, 248, 0.1);
+}
+
+.ascii-cell.command .ascii-cell-glyph { color: var(--accent-amber); font-size: 0.75rem; font-weight: 700; }
+.ascii-cell.printable .ascii-cell-glyph { color: var(--accent-cyan); font-size: 1.05rem; font-weight: 700; }
+.ascii-cell.extended .ascii-cell-glyph { color: var(--accent-cyan); font-size: 1.05rem; font-weight: 700; }
+.ascii-cell.russian .ascii-cell-glyph { color: var(--accent-green); font-size: 1.05rem; font-weight: 700; }
+.ascii-cell.console .ascii-cell-glyph { color: var(--accent-purple); font-size: 1.05rem; font-weight: 700; }
+
+.ascii-cell-dec {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+}
+
+.ascii-cell-hex {
+  font-size: 0.62rem;
+  color: var(--text-muted);
+}
+
+.ascii-modal-inspector {
+  padding: 12px 20px;
+  background: var(--bg-surface-card);
+  border-top: 1px solid var(--border-color);
+}
+
+.ascii-insp-badge {
+  padding: 4px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 1.15rem;
+  font-weight: 800;
+  font-family: 'Consolas', var(--font-mono);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+}
+
+.ascii-insp-badge.command { color: var(--accent-amber); }
+.ascii-insp-badge.printable { color: var(--accent-cyan); }
+.ascii-insp-badge.extended { color: var(--accent-cyan); }
+.ascii-insp-badge.russian { color: var(--accent-green); }
+.ascii-insp-badge.console { color: var(--accent-purple); }

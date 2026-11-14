@@ -6,6 +6,7 @@
 
 import { BitMath } from '../engine/BitMath.js';
 import { sounds } from '../audio/SoundManager.js';
+import { AsciiTableModal } from './AsciiTableModal.js';
 
 export class BitSwitchWidget {
   /**
@@ -56,15 +57,18 @@ export class BitSwitchWidget {
 
           <!-- Переключатель таблицы ASCII Windows 11 -->
           <div class="codepage-selector-bar">
-            <span class="codepage-label">Таблица Windows 11:</span>
-            <button class="topo-btn topo-btn-sm ${this.codePage === 'windows-1252' ? 'active' : ''}" data-cp="windows-1252" title="Стандартный шрифт Consolas в Windows 11 (ANSI / Win-1252)">
-              🪟 Consolas (Стандарт Win 11)
+            <span class="codepage-label">Таблица:</span>
+            <button class="topo-btn topo-btn-sm ${this.codePage === 'windows-1252' ? 'active' : ''}" data-cp="windows-1252" title="Стандарт Windows 11 (ANSI Win-1252)">
+              🪟 Win-1252 (Стандарт)
             </button>
             <button class="topo-btn topo-btn-sm ${this.codePage === 'windows-1251' ? 'active' : ''}" data-cp="windows-1251" title="Русская таблица Windows (Windows-1251)">
               🇷🇺 Win-1251 (Русская)
             </button>
             <button class="topo-btn topo-btn-sm ${this.codePage === 'ibm866' ? 'active' : ''}" data-cp="ibm866" title="Консоль Windows cmd.exe / DOS (CP866)">
               📟 CP866 (Консоль cmd)
+            </button>
+            <button class="topo-btn topo-btn-sm" id="btn-open-ascii-modal" title="Открыть полную таблицу всех 256 символов">
+              📖 Все 256 символов
             </button>
           </div>
 
@@ -83,7 +87,7 @@ export class BitSwitchWidget {
               <span class="res-val" id="res-hex">0x00</span>
             </div>
             <div class="res-item">
-              <span class="res-label" id="res-ascii-label">Символ (Consolas)</span>
+              <span class="res-label" id="res-ascii-label">Символ (Win-1252)</span>
               <span class="res-val" id="res-ascii" style="font-size: 1.15rem;">-</span>
               <span class="res-desc" id="res-ascii-desc"></span>
             </div>
@@ -173,6 +177,12 @@ export class BitSwitchWidget {
         });
         this.update();
       });
+    });
+
+    // Открытие полной таблицы 256 символов
+    this.container.querySelector('#btn-open-ascii-modal')?.addEventListener('click', () => {
+      sounds.click();
+      AsciiTableModal.open(this.codePage);
     });
 
     // Квест
@@ -275,9 +285,9 @@ export class BitSwitchWidget {
     const asciiLabel = this.container.querySelector('#res-ascii-label');
 
     if (asciiLabel) {
-      if (this.codePage === 'windows-1252') asciiLabel.textContent = 'Символ (Consolas / Win-1252)';
-      else if (this.codePage === 'windows-1251') asciiLabel.textContent = 'Символ (Win-1251 / Рус.)';
-      else if (this.codePage === 'ibm866') asciiLabel.textContent = 'Символ (CP866 / Консоль)';
+      if (this.codePage === 'windows-1252') asciiLabel.textContent = 'Символ (Win-1252)';
+      else if (this.codePage === 'windows-1251') asciiLabel.textContent = 'Символ (Win-1251)';
+      else if (this.codePage === 'ibm866') asciiLabel.textContent = 'Символ (CP866)';
     }
 
     if (asciiElem) {
@@ -419,7 +429,7 @@ export class BitSwitchWidget {
       else if (code === 192) desc = 'Заглавная латинская À с грависом (код 192)';
       else if (code === 223) desc = 'Немецкая буква эсцет «ß» (код 223)';
       else if (code === 255) desc = 'Строчная латинская ÿ с диэрезисом (код 255)';
-      else desc = `Символ шрифта Consolas (Win-1252, код ${code})`;
+      else desc = `Символ Win-1252 (код ${code})`;
     } else if (codePage === 'windows-1251') {
       // Русская Windows
       category = 'russian';

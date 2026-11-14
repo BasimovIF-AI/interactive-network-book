@@ -20,6 +20,7 @@ import { RouterCompass } from './widgets/RouterCompass.js';
 import { TcpHandshakeSim } from './widgets/TcpHandshakeSim.js';
 import { NetworkServicesLab } from './widgets/NetworkServicesLab.js';
 import { PacketTracerLite } from './widgets/PacketTracerLite.js';
+import { AsciiTableModal } from './widgets/AsciiTableModal.js';
 
 export class BookApp {
   constructor() {
@@ -121,6 +122,16 @@ export class BookApp {
         sidebar.classList.toggle('open');
       });
     }
+
+    // Делегированное открытие модального окна таблицы 256 символов
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('.btn-open-ascii-table-modal');
+      if (btn) {
+        sounds.click();
+        const cp = btn.getAttribute('data-cp') || 'windows-1252';
+        AsciiTableModal.open(cp);
+      }
+    });
   }
 
   loadChapter(index) {
