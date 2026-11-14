@@ -68,7 +68,7 @@ export class BitSwitchWidget {
               <span class="res-val" id="res-hex">0x00</span>
             </div>
             <div class="res-item">
-              <span class="res-label">Символ (ASCII)</span>
+              <span class="res-label">Символ (ASCII / Рус.)</span>
               <span class="res-val" id="res-ascii" style="font-size: 1.15rem;">-</span>
               <span class="res-desc" id="res-ascii-desc"></span>
             </div>
@@ -241,15 +241,15 @@ export class BitSwitchWidget {
     this.container.querySelector('#res-dec').textContent = this.value;
     this.container.querySelector('#res-hex').textContent = `0x${BitMath.toHexString(this.value, 2)}`;
 
-    // ASCII с подробным описанием спецкодов
+    // Символ ASCII и русская кодовая страница (Windows-1251)
     const asciiInfo = BitSwitchWidget.getAsciiInfo(this.value);
     const asciiElem = this.container.querySelector('#res-ascii');
     const asciiDesc = this.container.querySelector('#res-ascii-desc');
     if (asciiElem) {
       asciiElem.textContent = asciiInfo.name;
-      asciiElem.style.color = asciiInfo.isControl
-        ? 'var(--accent-amber)'
-        : (asciiInfo.isExtended ? 'var(--accent-purple)' : 'var(--accent-cyan)');
+      asciiElem.style.color = asciiInfo.category === 'russian'
+        ? 'var(--accent-green)'
+        : (asciiInfo.category === 'printable' ? 'var(--accent-cyan)' : 'var(--accent-amber)');
     }
     if (asciiDesc) {
       asciiDesc.textContent = asciiInfo.desc;
@@ -270,90 +270,114 @@ export class BitSwitchWidget {
   }
 
   /**
-   * Возвращает подробную расшифровку ASCII-кода (спецкоды 0-31, печатные, 127 и 128-255).
+   * Возвращает расшифровку символа:
+   * - 0..31 и 127: служебные команды терминала с понятными названиями;
+   * - 32: пробел;
+   * - 33..126: печатные латинские символы и цифры;
+   * - 128..255: русские буквы и символы кодовой страницы Windows-1251.
    * @param {number} code
-   * @returns {{ name: string, desc: string, isControl: boolean, isExtended: boolean }}
+   * @returns {{ name: string, desc: string, category: 'command' | 'printable' | 'russian' }}
    */
   static getAsciiInfo(code) {
-    const CONTROL_CODES = {
-      0:  { name: 'NUL (0x00)', desc: 'Null — пустой байт, конец строки в C/C++ и памяти' },
-      1:  { name: 'SOH (0x01)', desc: 'Start of Heading — начало сетевого заголовка пакета' },
-      2:  { name: 'STX (0x02)', desc: 'Start of Text — начало полезного текста сообщения' },
-      3:  { name: 'ETX (0x03)', desc: 'End of Text — конец текста сообщения' },
-      4:  { name: 'EOT (0x04)', desc: 'End of Transmission — конец сеанса передачи связи' },
-      5:  { name: 'ENQ (0x05)', desc: 'Enquiry — запрос связи («Кто на связи?»)' },
-      6:  { name: 'ACK (0x06)', desc: 'Acknowledge — подтверждение («Пакет принят без ошибок!»)' },
-      7:  { name: 'BEL (0x07)', desc: 'Bell (Звонок) — звуковой сигнал / писк спикера терминала' },
-      8:  { name: 'BS (0x08)',  desc: 'Backspace — шаг назад / удаление символа слева' },
-      9:  { name: 'HT / TAB',   desc: 'Табуляция — отступ на 4 или 8 пробелов (клавиша Tab)' },
-      10: { name: 'LF / \\n',    desc: 'Line Feed — перевод строки на новую строчку вниз' },
-      11: { name: 'VT (0x0B)', desc: 'Vertical Tab — вертикальная табуляция (пропуск строк)' },
-      12: { name: 'FF (0x0C)', desc: 'Form Feed — прогон страницы на принтере / очистка терминала' },
-      13: { name: 'CR / \\r',    desc: 'Carriage Return — возврат каретки в самое начало строки' },
-      14: { name: 'SO (0x0E)', desc: 'Shift Out — переключение на альтернативный шрифт / цвет' },
-      15: { name: 'SI (0x0F)', desc: 'Shift In — возврат к стандартному шрифту' },
-      16: { name: 'DLE (0x10)', desc: 'Data Link Escape — экранирование управляющих команд' },
-      17: { name: 'DC1 / XON',  desc: 'Device Control 1 — возобновить приём потока данных' },
-      18: { name: 'DC2 (0x12)', desc: 'Device Control 2 — включить внешнее устройство' },
-      19: { name: 'DC3 / XOFF', desc: 'Device Control 3 — приостановить поток (пауза передачи)' },
-      20: { name: 'DC4 (0x14)', desc: 'Device Control 4 — выключить внешнее устройство' },
-      21: { name: 'NAK (0x15)', desc: 'Negative Ack — ошибка («Пакет повреждён, повтори!»)' },
-      22: { name: 'SYN (0x16)', desc: 'Synchronous Idle — сигнал синхронизации и ожидания' },
-      23: { name: 'ETB (0x17)', desc: 'End of Block — конец передаваемого блока данных' },
-      24: { name: 'CAN (0x18)', desc: 'Cancel — отмена / сброс начатой операции' },
-      25: { name: 'EM (0x19)',  desc: 'End of Medium — физический конец перфоленты / носителя' },
-      26: { name: 'SUB / ^Z',   desc: 'Substitute (Ctrl+Z) — замена испорченного знака / конец ввода' },
-      27: { name: 'ESC (0x1B)', desc: 'Escape — отмена / начало ANSI-кодов цвета в терминале' },
-      28: { name: 'FS (0x1C)',  desc: 'File Separator — разделитель файлов в потоке данных' },
-      29: { name: 'GS (0x1D)',  desc: 'Group Separator — разделитель групп записей' },
-      30: { name: 'RS (0x1E)',  desc: 'Record Separator — разделитель записей' },
-      31: { name: 'US (0x1F)',  desc: 'Unit Separator — разделитель элементарных полей данных' },
-      127: { name: 'DEL (0x7F)', desc: 'Delete — удаление символа (на перфоленте — пробиты все 7 бит)' }
+    // 1. Служебные команды телетайпа и сетевых терминалов (0-31 и 127)
+    const COMMAND_CODES = {
+      0:  { name: '[Пустой байт / NUL]', desc: 'Завершитель строк в памяти и программах (код 0)' },
+      1:  { name: '[Заголовок пакета]', desc: 'Служебный старт сетевого пакета (SOH, код 1)' },
+      2:  { name: '[Начало текста]', desc: 'Маркер начала текста сообщения (STX, код 2)' },
+      3:  { name: '[Конец текста]', desc: 'Маркер окончания текста сообщения (ETX, код 3)' },
+      4:  { name: '[Конец связи]', desc: 'Разрыв сеанса передачи данных (EOT, код 4)' },
+      5:  { name: '[Запрос связи]', desc: 'Запрос готовности («Кто на проводе?», ENQ, код 5)' },
+      6:  { name: '[Подтверждение: Да]', desc: 'Ответ «Пакет принят без ошибок!» (ACK, код 6)' },
+      7:  { name: '[Звонок терминала]', desc: 'Звуковой сигнал / бип спикера (BEL, код 7)' },
+      8:  { name: '[Удаление назад]', desc: 'Клавиша Backspace / шаг назад (BS, код 8)' },
+      9:  { name: '[Табуляция / Tab]', desc: 'Отступ на 4 или 8 пробелов (HT, код 9)' },
+      10: { name: '[Новая строка / \\n]', desc: 'Перевод строки на строчку вниз (LF, код 10)' },
+      11: { name: '[Вертикальный отступ]', desc: 'Вертикальный пропуск строк (VT, код 11)' },
+      12: { name: '[Очистка экрана]', desc: 'Прогон листа на принтере / очистка (FF, код 12)' },
+      13: { name: '[Возврат в начало / \\r]', desc: 'Возврат каретки в начало строки (CR, код 13)' },
+      14: { name: '[Смена шрифта]', desc: 'Переключение на альтернативный набор (SO, код 14)' },
+      15: { name: '[Обычный шрифт]', desc: 'Возврат к стандартному шрифту (SI, код 15)' },
+      16: { name: '[Шифр канала]', desc: 'Экранирование служебных команд (DLE, код 16)' },
+      17: { name: '[Старт потока]', desc: 'Команда «Продолжай передачу» (XON, код 17)' },
+      18: { name: '[Вкл. прибор]', desc: 'Управление доп. устройством (DC2, код 18)' },
+      19: { name: '[Пауза потока]', desc: 'Команда «Приостанови передачу» (XOFF, код 19)' },
+      20: { name: '[Выкл. прибор]', desc: 'Управление доп. устройством (DC4, код 20)' },
+      21: { name: '[Ошибка: Повтори!]', desc: 'Отказ приёма («Пакет повреждён!», NAK, код 21)' },
+      22: { name: '[Синхронизация]', desc: 'Сигнал ожидания в канале связи (SYN, код 22)' },
+      23: { name: '[Конец блока]', desc: 'Окончание блока данных (ETB, код 23)' },
+      24: { name: '[Отмена команды]', desc: 'Сброс начатой операции (CAN, код 24)' },
+      25: { name: '[Конец носителя]', desc: 'Физический конец ленты (EM, код 25)' },
+      26: { name: '[Конец ввода / ^Z]', desc: 'Маркер завершения ввода файла (SUB, код 26)' },
+      27: { name: '[Клавиша Esc]', desc: 'Отмена / старт ANSI-цветов в консоли (ESC, код 27)' },
+      28: { name: '[Разделитель файлов]', desc: 'Граница файлов в общем потоке (FS, код 28)' },
+      29: { name: '[Разделитель групп]', desc: 'Граница групп записей (GS, код 29)' },
+      30: { name: '[Разделитель строк]', desc: 'Граница записей в таблице (RS, код 30)' },
+      31: { name: '[Разделитель полей]', desc: 'Граница отдельных полей данных (US, код 31)' },
+      127: { name: '[Удаление / Del]', desc: 'Клавиша Delete (пробиты все 7 бит, DEL, код 127)' }
     };
 
-    if (CONTROL_CODES[code]) {
+    if (COMMAND_CODES[code]) {
       return {
-        name: CONTROL_CODES[code].name,
-        desc: CONTROL_CODES[code].desc,
-        isControl: true,
-        isExtended: false
+        name: COMMAND_CODES[code].name,
+        desc: COMMAND_CODES[code].desc,
+        category: 'command'
       };
     }
 
+    // 2. Пробел (32)
     if (code === 32) {
       return {
-        name: '[Пробел] (0x20)',
-        desc: 'Печатный пробел (пустое место между словами)',
-        isControl: false,
-        isExtended: false
+        name: '[Пробел]',
+        desc: 'Пробел между словами (код 32 / 0x20)',
+        category: 'printable'
       };
     }
 
+    // 3. Базовый печатный латинский диапазон ASCII (33–126)
     if (code >= 33 && code <= 126) {
       const ch = String.fromCharCode(code);
-      let desc = 'Печатный знак препинания / символ';
+      let desc = 'Знак препинания / символ';
       if (code >= 48 && code <= 57) {
-        desc = 'Печатная цифра в тексте (не путать с числом!)';
+        desc = `Печатная цифра в тексте (код ${code})`;
       } else if (code >= 65 && code <= 90) {
-        desc = 'Печатная заглавная латинская буква';
+        desc = `Заглавная латинская буква (код ${code})`;
       } else if (code >= 97 && code <= 122) {
-        desc = 'Печатная строчная латинская буква';
+        desc = `Строчная латинская буква (код ${code})`;
       }
       return {
-        name: `'${ch}' (код ${code})`,
+        name: `'${ch}'`,
         desc,
-        isControl: false,
-        isExtended: false
+        category: 'printable'
       };
     }
 
-    // 128..255
-    const hex = BitMath.toHexString(code, 2);
+    // 4. Русские символы и буквы 8-битного расширенного ASCII (Windows-1251) для 128–255
+    let ruChar = '';
+    try {
+      ruChar = new TextDecoder('windows-1251').decode(new Uint8Array([code]));
+    } catch (e) {
+      ruChar = String.fromCharCode(code);
+    }
+
+    let ruDesc = `Русский символ (Windows-1251, код ${code})`;
+    if (code >= 192 && code <= 223) {
+      ruDesc = `Русская заглавная буква «${ruChar}» (код ${code})`;
+    } else if (code >= 224 && code <= 255) {
+      ruDesc = `Русская строчная буква «${ruChar}» (код ${code})`;
+    } else if (code === 168) {
+      ruDesc = `Русская заглавная буква «Ё» (код 168)`;
+    } else if (code === 184) {
+      ruDesc = `Русская строчная буква «ё» (код 184)`;
+    } else if (code === 185) {
+      ruDesc = `Символ знака номера «№» (код 185)`;
+    } else if (code === 171 || code === 187) {
+      ruDesc = `Русская кавычка «ёлочка» (код ${code})`;
+    }
+
     return {
-      name: `Вне 7-бит ASCII (0x${hex})`,
-      desc: 'Старший бит = 1. В UTF-8 часть кириллицы/эмодзи, в Win-1251 — доп. символ',
-      isControl: false,
-      isExtended: true
+      name: `'${ruChar}'`,
+      desc: ruDesc,
+      category: 'russian'
     };
   }
 }
