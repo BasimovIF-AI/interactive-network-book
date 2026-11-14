@@ -15,6 +15,7 @@ export class BitSwitchWidget {
   constructor(container, initialValue = 0) {
     this.container = container;
     this.value = initialValue & 0xFF;
+    this.codePage = 'windows-1252'; // Стандартная таблица шрифта Consolas в Windows 11 (ANSI)
     this.questTarget = null;
     this.questScore = 0;
     this.questSolved = false;
@@ -53,6 +54,20 @@ export class BitSwitchWidget {
             <button class="topo-btn" id="btn-random-byte">🎲 Случайный байт</button>
           </div>
 
+          <!-- Переключатель таблицы ASCII Windows 11 -->
+          <div class="codepage-selector-bar">
+            <span class="codepage-label">Таблица Windows 11:</span>
+            <button class="topo-btn topo-btn-sm ${this.codePage === 'windows-1252' ? 'active' : ''}" data-cp="windows-1252" title="Стандартный шрифт Consolas в Windows 11 (ANSI / Win-1252)">
+              🪟 Consolas (Стандарт Win 11)
+            </button>
+            <button class="topo-btn topo-btn-sm ${this.codePage === 'windows-1251' ? 'active' : ''}" data-cp="windows-1251" title="Русская таблица Windows (Windows-1251)">
+              🇷🇺 Win-1251 (Русская)
+            </button>
+            <button class="topo-btn topo-btn-sm ${this.codePage === 'ibm866' ? 'active' : ''}" data-cp="ibm866" title="Консоль Windows cmd.exe / DOS (CP866)">
+              📟 CP866 (Консоль cmd)
+            </button>
+          </div>
+
           <!-- Панель результатов -->
           <div class="bit-results">
             <div class="res-item">
@@ -68,7 +83,7 @@ export class BitSwitchWidget {
               <span class="res-val" id="res-hex">0x00</span>
             </div>
             <div class="res-item">
-              <span class="res-label">Символ (ASCII / Рус.)</span>
+              <span class="res-label" id="res-ascii-label">Символ (Consolas)</span>
               <span class="res-val" id="res-ascii" style="font-size: 1.15rem;">-</span>
               <span class="res-desc" id="res-ascii-desc"></span>
             </div>
@@ -146,6 +161,18 @@ export class BitSwitchWidget {
     this.container.querySelector('#btn-mask-192').addEventListener('click', () => {
       sounds.click();
       this.setValue(192);
+    });
+
+    // Переключатель кодовых страниц
+    this.container.querySelectorAll('[data-cp]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        sounds.click();
+        this.codePage = btn.dataset.cp;
+        this.container.querySelectorAll('[data-cp]').forEach(b => {
+          b.classList.toggle('active', b.dataset.cp === this.codePage);
+        });
+        this.update();
+      });
     });
 
     // Квест
@@ -241,15 +268,32 @@ export class BitSwitchWidget {
     this.container.querySelector('#res-dec').textContent = this.value;
     this.container.querySelector('#res-hex').textContent = `0x${BitMath.toHexString(this.value, 2)}`;
 
-    // Символ ASCII и русская кодовая страница (Windows-1251)
-    const asciiInfo = BitSwitchWidget.getAsciiInfo(this.value);
+    // ASCII и таблица символов Windows 11
+    const asciiInfo = BitSwitchWidget.getAsciiInfo(this.value, this.codePage);
     const asciiElem = this.container.querySelector('#res-ascii');
     const asciiDesc = this.container.querySelector('#res-ascii-desc');
+    const asciiLabel = this.container.querySelector('#res-ascii-label');
+
+    if (asciiLabel) {
+      if (this.codePage === 'windows-1252') asciiLabel.textContent = 'Символ (Consolas / Win-1252)';
+      else if (this.codePage === 'windows-1251') asciiLabel.textContent = 'Символ (Win-1251 / Рус.)';
+      else if (this.codePage === 'ibm866') asciiLabel.textContent = 'Символ (CP866 / Консоль)';
+    }
+
     if (asciiElem) {
       asciiElem.textContent = asciiInfo.name;
-      asciiElem.style.color = asciiInfo.category === 'russian'
-        ? 'var(--accent-green)'
-        : (asciiInfo.category === 'printable' ? 'var(--accent-cyan)' : 'var(--accent-amber)');
+      asciiElem.style.fontFamily = "'Consolas', var(--font-mono)";
+      if (asciiInfo.category === 'russian') {
+        asciiElem.style.color = 'var(--accent-green)';
+      } else if (asciiInfo.category === 'extended') {
+        asciiElem.style.color = 'var(--accent-cyan)';
+      } else if (asciiInfo.category === 'console') {
+        asciiElem.style.color = 'var(--accent-purple)';
+      } else if (asciiInfo.category === 'command') {
+        asciiElem.style.color = 'var(--accent-amber)';
+      } else {
+        asciiElem.style.color = 'var(--accent-cyan)';
+      }
     }
     if (asciiDesc) {
       asciiDesc.textContent = asciiInfo.desc;
@@ -270,15 +314,16 @@ export class BitSwitchWidget {
   }
 
   /**
-   * Возвращает расшифровку символа:
+   * Возвращает расшифровку символа для выбранной кодовой страницы Windows 11:
    * - 0..31 и 127: служебные команды терминала с понятными названиями;
    * - 32: пробел;
    * - 33..126: печатные латинские символы и цифры;
-   * - 128..255: русские буквы и символы кодовой страницы Windows-1251.
+   * - 128..255: символы стандартного шрифта Consolas / Windows-1252, Windows-1251 или CP866.
    * @param {number} code
-   * @returns {{ name: string, desc: string, category: 'command' | 'printable' | 'russian' }}
+   * @param {string} codePage
+   * @returns {{ name: string, desc: string, category: 'command' | 'printable' | 'extended' | 'russian' | 'console' }}
    */
-  static getAsciiInfo(code) {
+  static getAsciiInfo(code, codePage = 'windows-1252') {
     // 1. Служебные команды телетайпа и сетевых терминалов (0-31 и 127)
     const COMMAND_CODES = {
       0:  { name: '[Пустой байт / NUL]', desc: 'Завершитель строк в памяти и программах (код 0)' },
@@ -351,33 +396,53 @@ export class BitSwitchWidget {
       };
     }
 
-    // 4. Русские символы и буквы 8-битного расширенного ASCII (Windows-1251) для 128–255
-    let ruChar = '';
+    // 4. Расширенный диапазон (128–255) в выбранной таблице Windows 11
+    let char = '';
     try {
-      ruChar = new TextDecoder('windows-1251').decode(new Uint8Array([code]));
+      char = new TextDecoder(codePage).decode(new Uint8Array([code]));
     } catch (e) {
-      ruChar = String.fromCharCode(code);
+      char = String.fromCharCode(code);
     }
 
-    let ruDesc = `Русский символ (Windows-1251, код ${code})`;
-    if (code >= 192 && code <= 223) {
-      ruDesc = `Русская заглавная буква «${ruChar}» (код ${code})`;
-    } else if (code >= 224 && code <= 255) {
-      ruDesc = `Русская строчная буква «${ruChar}» (код ${code})`;
-    } else if (code === 168) {
-      ruDesc = `Русская заглавная буква «Ё» (код 168)`;
-    } else if (code === 184) {
-      ruDesc = `Русская строчная буква «ё» (код 184)`;
-    } else if (code === 185) {
-      ruDesc = `Символ знака номера «№» (код 185)`;
-    } else if (code === 171 || code === 187) {
-      ruDesc = `Русская кавычка «ёлочка» (код ${code})`;
+    let desc = '';
+    let category = 'extended';
+
+    if (codePage === 'windows-1252') {
+      // Стандартный шрифт Consolas / Windows 11 (ANSI)
+      category = 'extended';
+      if (code === 128) desc = 'Знак европейской валюты «€» (евро)';
+      else if (code === 169) desc = 'Знак авторского права «©» (копирайт)';
+      else if (code === 174) desc = 'Зарегистрированный знак «®»';
+      else if (code === 176) desc = 'Знак градуса «°»';
+      else if (code === 177) desc = 'Знак плюс-минус «±»';
+      else if (code === 187 || code === 171) desc = `Типографская кавычка «${char}»`;
+      else if (code === 192) desc = 'Заглавная латинская À с грависом (код 192)';
+      else if (code === 223) desc = 'Немецкая буква эсцет «ß» (код 223)';
+      else if (code === 255) desc = 'Строчная латинская ÿ с диэрезисом (код 255)';
+      else desc = `Символ шрифта Consolas (Win-1252, код ${code})`;
+    } else if (codePage === 'windows-1251') {
+      // Русская Windows
+      category = 'russian';
+      if (code >= 192 && code <= 223) desc = `Русская заглавная буква «${char}» (код ${code})`;
+      else if (code >= 224 && code <= 255) desc = `Русская строчная буква «${char}» (код ${code})`;
+      else if (code === 168) desc = 'Русская заглавная буква «Ё» (код 168)';
+      else if (code === 184) desc = 'Русская строчная буква «ё» (код 184)';
+      else if (code === 185) desc = 'Символ знака номера «№» (код 185)';
+      else desc = `Русский символ Windows-1251 (код ${code})`;
+    } else if (codePage === 'ibm866') {
+      // Консоль Windows cmd.exe / DOS
+      category = 'console';
+      if (code >= 128 && code <= 159) desc = `Русская заглавная буква «${char}» (DOS CP866)`;
+      else if (code >= 160 && code <= 175) desc = `Русская строчная буква «${char}» (DOS CP866)`;
+      else if (code >= 176 && code <= 223) desc = `Символ рамки / псевдографики «${char}» (CP866)`;
+      else if (code >= 224 && code <= 239) desc = `Русская строчная буква «${char}» (DOS CP866)`;
+      else desc = `Символ консоли Windows CP866 (код ${code})`;
     }
 
     return {
-      name: `'${ruChar}'`,
-      desc: ruDesc,
-      category: 'russian'
+      name: `'${char}'`,
+      desc,
+      category
     };
   }
 }

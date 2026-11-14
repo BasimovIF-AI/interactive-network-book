@@ -869,3 +869,25 @@
   background: var(--accent-amber);
   color: #000;
 }
+
+
+.codepage-selector-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 14px 0 6px;
+  font-size: 0.85rem;
+}
+
+.codepage-label {
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.topo-btn-sm {
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  border-radius: var(--radius-sm);
+}
